@@ -30,6 +30,12 @@ export class BluetoothPage {
   //variables nuevas
   conectadoA: string = "";
   dataSalida: Array<any> = [];
+  //variables de hex
+  //responsePIDS;
+  modeRealTime = "01";
+  modeRequestDTC = "03";
+  modeClearDTC = "04";
+  modeVin = "09";
 
   constructor(
     private platform: Platform,
@@ -172,7 +178,8 @@ export class BluetoothPage {
   conectar(id: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.conexion = this.bluetoothSerial.connect(id).subscribe((data: Observable<any>) => {
-        this.enviarMensajes();
+        //lo vamos a comentar por mientras
+        //this.enviarMensajes();
         resolve("Conectado");
       }, fail => {
         console.log(`[3] Error conexión: ${JSON.stringify(fail)}`);
@@ -199,13 +206,24 @@ export class BluetoothPage {
     this.presentToast('Enviando mensaje: ' + sms);
     this.conexionMensajes = this.dataInOut(sms).subscribe(data => {
       let entrada = data.substr(0, data.length - 1);
-      this.presentToast('data:' + data);
+      //this.presentToast('data:' + data);
       if (data && data.length > 0) {
-        var entidad = {
-          Respuesta: data,
-          Fecha: new Date()
-        };
-        this.dataSalida.push(entidad);
+        var obj = this.parseObdCommand(data);
+        if (obj.name && obj.name.length > 0) {
+          //this.dataSalida.push(entidad);
+          var entidad = {
+            Modo: obj.mode,
+            Pid: obj.pid,
+            Nombre: obj.name,
+            Descripcion: obj.description,
+            Valor: obj.value,
+            Minimo: obj.min,
+            Maximo: obj.max,
+            Unidad: obj.unit,
+            Fecha: new Date()
+          };
+          this.dataSalida.push(entidad);
+        }
       }
       //this.presentToast('variable salida: ' + entrada);
       if (entrada != ">") {
@@ -218,6 +236,381 @@ export class BluetoothPage {
       }
       this.mensaje = "";
     });
+  }
+  parseObdCommand(hexString) {
+    var reply;
+    var byteNumber;
+    var valueArray; //New object
+
+    reply = {};
+
+    if (hexString === "NO DATA" || hexString === "OK" || hexString === "?" || hexString === "UNABLE TO CONNECT" || hexString === "SEARCHING...") {
+      //No data or OK is the response, return directly.
+      reply.value = hexString;
+      reply.description = hexString;
+      return reply;
+    }
+
+    hexString = hexString.replace(/ /g, ''); //Whitespace trimming //Probably not needed anymore?
+    valueArray = [];
+
+    for (byteNumber = 0; byteNumber < hexString.length; byteNumber += 2) {
+      valueArray.push(hexString.substr(byteNumber, 2));
+    }
+
+    if (valueArray[0] === "41") {
+      reply.mode = valueArray[0];
+      reply.pid = valueArray[1];
+      for (var i = 0; i < this.responsePIDS.length; i++) {
+        if (this.responsePIDS[i].pid == reply.pid) {
+          var numberOfBytes = this.responsePIDS[i].bytes;
+          reply.name = this.responsePIDS[i].name;
+          reply.description = this.responsePIDS[i].description;
+          reply.min = this.responsePIDS[i].min;
+          reply.max = this.responsePIDS[i].max;
+          reply.unit = this.responsePIDS[i].unit;
+          switch (numberOfBytes) {
+            case 1:
+              if (reply.name == 'vss') {
+                reply.value = this.convertSpeed(valueArray[2]);
+              }
+              if (reply.name == "dtcfrzf") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "temp") {
+                reply.value = this.convertTemp(valueArray[2]);
+              }
+              if (reply.name == "load_pct") {
+                reply.value = this.convertLoad(valueArray[2]);
+              }
+              if (reply.name == "shrtft13") {
+                reply.value = this.convertFuelTrim(valueArray[2]);
+              }
+              if (reply.name == "longft13") {
+                reply.value = this.convertFuelTrim(valueArray[2]);
+              }
+              if (reply.name == "shrtft24") {
+                reply.value = this.convertFuelTrim(valueArray[2]);
+              }
+              if (reply.name == "longft24") {
+                reply.value = this.convertFuelTrim(valueArray[2]);
+              }
+              if (reply.name == "frp") {
+                reply.value = this.convertFuelRailPressure(valueArray[2]);
+              }
+              if (reply.name == "map") {
+                reply.value = this.convertIntakePressure(valueArray[2]);
+              }
+              if (reply.name == "sparkadv") {
+                reply.value = this.convertSparkAdvance(valueArray[2]);
+              }
+              if (reply.name == "iat") {
+                reply.value = this.convertTemp(valueArray[2]);
+              }
+              if (reply.name == "throttlepos") {
+                reply.value = this.convertThrottlePos(valueArray[2]);
+              }
+              if (reply.name == "air_stat") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "o2sloc") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "o2s11") {
+                reply.value = this.convertOxygenSensorOutput(valueArray[2]);
+              }
+              if (reply.name == "o2s12") {
+                reply.value = this.convertOxygenSensorOutput(valueArray[2]);
+              }
+              if (reply.name == "o2s13") {
+                reply.value = this.convertOxygenSensorOutput(valueArray[2]);
+              }
+              if (reply.name == "o2s14") {
+                reply.value = this.convertOxygenSensorOutput(valueArray[2]);
+              }
+              if (reply.name == "o2s21") {
+                reply.value = this.convertOxygenSensorOutput(valueArray[2]);
+              }
+              if (reply.name == "o2s22") {
+                reply.value = this.convertOxygenSensorOutput(valueArray[2]);
+              }
+              if (reply.name == "o2s23") {
+                reply.value = this.convertOxygenSensorOutput(valueArray[2]);
+              }
+              if (reply.name == "o2s24") {
+                reply.value = this.convertOxygenSensorOutput(valueArray[2]);
+              }
+              if (reply.name == "obdsup") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "o2sloc2") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "pto_stat") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "egr_pct") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "egr_err") {
+                reply.value = this.convertPercentB(valueArray[2]);
+              }
+              if (reply.name == "evap_pct") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "fli") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "warm_ups") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "evap_vp") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "baro") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "monitorstat") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "tp_r") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "aat") {
+                reply.value = this.convertAmbientAirTemp(valueArray[2]);
+              }
+              if (reply.name == "tp_b") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "tp_b") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "tp_c") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "app_d") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "app_e") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "app_f") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "tac_pct") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "fuel_type") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "alch_pct") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "pedalpos") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "hybridlife") {
+                reply.value = this.convertPercentA(valueArray[2]);
+              }
+              if (reply.name == "engineoilt") {
+                reply.value = this.convertTemp(valueArray[2]);
+              }
+              if (reply.name == "emmissionreq") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "aet") {
+                reply.value = this.convertEngineTorque(valueArray[2]);
+              }
+              if (reply.name == "vinsupp0") {
+                reply.value = this.bitDecoder(valueArray[2]);
+              }
+              if (reply.name == "vin_mscout") {
+                reply.value = this.convertVIN_count(valueArray[2]);
+              }
+              if (reply.name == "vin") {
+                reply.value = this.convertVIN(valueArray[2]);
+              }
+              //vin
+              break;
+            case 2:
+              if (reply.name == "fuelsys") {
+                reply.value = this.convertFuelSystem(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "rpm") {
+                reply.value = this.convertRPM(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "maf") {
+                reply.value = this.convertAirFlowRate(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "runtm") {
+                reply.value = this.convertRuntime(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "mil_dist") {
+                reply.value = this.convertRuntime(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "frpm") {
+                reply.value = this.convertfrpm(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "frpd") {
+                reply.value = this.convertfrpd(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "clr_dist") {
+                reply.value = this.convertDistanceSinceCodesCleared(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "catemp11") {
+                reply.value = this.convertCatalystTemperature(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "catemp21") {
+                reply.value = this.convertCatalystTemperature(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "catemp12") {
+                reply.value = this.convertCatalystTemperature(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "catemp22") {
+                reply.value = this.convertCatalystTemperature(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "vpwr") {
+                reply.value = this.convertControlModuleVoltage(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "load_abs") {
+                reply.value = this.convertAbsoluteLoad(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "lambda") {
+                reply.value = this.convertLambda3(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "mil_time") {
+                reply.value = this.convertMinutes(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "clr_time") {
+                reply.value = this.convertMinutes(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "abs_vp") {
+                reply.value = this.convertAbsoluteVaporPressure(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "system_vp") {
+                reply.value = this.convertSystemVaporPressure(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "s02b13") {
+                reply.value = this.convertShortOxygenSensorOutput(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "l02b13") {
+                reply.value = this.convertShortOxygenSensorOutput(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "s02b24") {
+                reply.value = this.convertShortOxygenSensorOutput(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "l02b24") {
+                reply.value = this.convertShortOxygenSensorOutput(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "frp_abs") {
+                reply.value = this.convertFuelRailPressureAbs(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "finjtiming") {
+                reply.value = this.convertFuelInjectionTiming(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "enginefrate") {
+                reply.value = this.convertEngineFuelRate(valueArray[2], valueArray[3]);
+              }
+              if (reply.name == "egt") {
+                reply.value = this.convertExhastGasTemperature(valueArray[2], valueArray[3]);
+              }
+
+
+              break;
+            case 4:
+              if (reply.name == "pidsupp0") {
+                reply.value = this.convertPIDSupported(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "dtc_cnt") {
+                reply.value = this.convertDTCCheck(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "piddsupp2") {
+                reply.value = this.convertPIDSupported(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambda11") {
+                reply.value = this.convertLambda(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambda12") {
+                reply.value = this.convertLambda(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambda13") {
+                reply.value = this.convertLambda(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambda14") {
+                reply.value = this.convertLambda(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambda21") {
+                reply.value = this.convertLambda(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambda22") {
+                reply.value = this.convertLambda(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambda23") {
+                reply.value = this.convertLambda(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambda24") {
+                reply.value = this.convertLambda(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambdac11") {
+                reply.value = this.convertLambda2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambdac12") {
+                reply.value = this.convertLambda2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambdac13") {
+                reply.value = this.convertLambda2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambdac14") {
+                reply.value = this.convertLambda2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambdac21") {
+                reply.value = this.convertLambda2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambdac22") {
+                reply.value = this.convertLambda2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambdac23") {
+                reply.value = this.convertLambda2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "lambdac24") {
+                reply.value = this.convertLambda2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "piddsupp4") {
+                reply.value = this.convertPIDSupported(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "exttest1") {
+                reply.value = this.convertExternalTestEquipment(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              if (reply.name == "exttest2") {
+                reply.value = this.convertExternalTestEquipment2(valueArray[2], valueArray[3], valueArray[4], valueArray[5]);
+              }
+              break;
+            case 8:
+              //reply.value = this.responsePIDS[i].convertToUseful(valueArray[2], valueArray[3], valueArray[4], valueArray[5], valueArray[6], valueArray[7], valueArray[8], valueArray[9]);
+              break;
+          }
+          break; //Value is converted, break out the for loop.
+        }
+      }
+      //return reply;
+    } else if (valueArray[0] === "43") {
+      reply.mode = valueArray[0];
+      for (var ij = 0; ij < this.responsePIDS.length; ij++) {
+        if (this.responsePIDS[ij].mode == "03") {
+          reply.name = this.responsePIDS[ij].name;
+          reply.description = this.responsePIDS[ij].description;
+          if (reply.name == "requestdtc") {
+            reply.value = this.convertDTCRequest(valueArray[2], valueArray[3], valueArray[4], valueArray[5], valueArray[6], valueArray[7]);
+          }
+          if (reply.name == "requestdtc") {
+            reply.value = this.convertDTCRequest(valueArray[2], valueArray[3], valueArray[4], valueArray[5], valueArray[6], valueArray[7]);
+          }
+
+        }
+      }
+    }
+    //retorno de la info
+    return reply;
   }
   /**
    * Establece el socket para las comunicaciones seriales después de conectarse con un dispositivo
@@ -501,11 +894,7 @@ convertVIN(byte) {
     return vin;
 }
 
-//responsePIDS;
-modeRealTime = "01";
-modeRequestDTC = "03";
-modeClearDTC = "04";
-modeVin = "09";
+
 
 responsePIDS = [
     //Realtime data
@@ -522,7 +911,7 @@ responsePIDS = [
     {mode: this.modeRealTime, pid: "0A", bytes: 1, name: "frp",          description: "Fuel Pressure", min: 0, max: 765, unit: "kPa", convertToUseful: this.convertFuelRailPressure},
     {mode: this.modeRealTime, pid: "0B", bytes: 1, name: "map",          description: "Intake Manifold Absolute Pressure", min: 0, max: 255, unit: "kPa", convertToUseful: this.convertIntakePressure},
     {mode: this.modeRealTime, pid: "0C", bytes: 2, name: "rpm",          description: "Engine RPM", min: 0, max: 16383.75, unit: "rev/min", convertToUseful: this.convertRPM},
-    {mode: this.modeRealTime, pid: "0D", bytes: 1, name: "vss",          description: "Vehicle Speed Sensor", min: 0, max: 255, unit: "km/h", convertToUseful: this.convertSpeed},
+    {mode: this.modeRealTime, pid: "0D", bytes: 1, name: "vss",          description: "Vehicle Speed Sensor", min: 0, max: 255, unit: "km/h", convertToUseful: this.convertSpeed },
     {mode: this.modeRealTime, pid: "0E", bytes: 1, name: "sparkadv",     description: "Ignition Timing Advance for #1 Cylinder", min: -64, max: 63.5, unit: "degrees relative to #1 cylinder",  convertToUseful: this.convertSparkAdvance},
     {mode: this.modeRealTime, pid: "0F", bytes: 1, name: "iat",          description: "Intake Air Temperature", min: -40, max: 215, unit: "Celsius", convertToUseful: this.convertTemp},
     {mode: this.modeRealTime, pid: "10", bytes: 2, name: "maf",          description: "Air Flow Rate from Mass Air Flow Sensor", min: 0, max: 655.35, unit: "g/s", convertToUseful: this.convertAirFlowRate},
@@ -613,23 +1002,25 @@ responsePIDS = [
 
     //added some new pid entries
     {mode: this.modeRealTime, pid: "62", bytes: 1, name: "aet",          description: "Actual engine - percent torque", min: -125, max: 125, unit: "%", convertToUseful: this.convertEngineTorque},
+    //estos no estan incluidos
     {mode: this.modeRealTime, pid: "67", bytes: 3, name: "ect",          description: "Engine coolant temperature", min: -40, max: 215, unit: "Celsius"},
     {mode: this.modeRealTime, pid: "6B", bytes: 5, name: "egrt",         description: "Exhaust gas recirculation temperature", min: -40, max: 215, unit: "Celsius"},
     {mode: this.modeRealTime, pid: "6D", bytes: 6, name: "fpc",          description: "Fuel pressure control system", min: -40, max: 215, unit: "Celsius"},
     {mode: this.modeRealTime, pid: "6E", bytes: 5, name: "ipct",         description: "Injection pressure control system", min: -40, max: 215, unit: "Celsius"},
     {mode: this.modeRealTime, pid: "73", bytes: 5, name: "ep",           description: "Exhaust pressure", min: -40, max: 215, unit: "Celsius"},
+    //**************************************** */
     {mode: this.modeRealTime, pid: "78", bytes: 9, name: "egt",          description: "Exhaust Gas temperature Bank 1", min: -40, max: 215, unit: "Celsius", convertToUseful: this.convertExhastGasTemperature},
 
 
 
     //DTC's
-    {mode: this.modeRequestDTC, pid: undefined, bytes: 6, name: "requestdtc", description: "Requested DTC", convertToUseful: this.convertDTCRequest}, //n*6 --> For each code, 6 bytes.
-    {mode: this.modeClearDTC, pid: undefined, bytes: 0, name: "cleardtc", description: "Clear Trouble Codes (Clear engine light)", convertToUseful: this.notSupported},
+    {mode: this.modeRequestDTC, pid: undefined, bytes: 6, name: "requestdtc", description: "Requested DTC",  min: 0, max: 0, unit: "?", convertToUseful: this.convertDTCRequest}, //n*6 --> For each code, 6 bytes.
+    {mode: this.modeClearDTC, pid: undefined, bytes: 0, name: "cleardtc", description: "Clear Trouble Codes (Clear engine light)", min: 0, max: 0, unit: "?", convertToUseful: this.notSupported},
 
     //VIN
-    {mode: this.modeVin, pid: "00", bytes: 4, name: "vinsupp0", description: "Vehicle Identification Number", convertToUseful: this.bitDecoder},
-    {mode: this.modeVin, pid: "01", bytes: 1, name: "vin_mscout", description: "VIN message count", convertToUseful: this.convertVIN_count},
-    {mode: this.modeVin, pid: "02", bytes: 1, name: "vin", description: "Vehicle Identification Number", convertToUseful: this.convertVIN}
+    {mode: this.modeVin, pid: "00", bytes: 4, name: "vinsupp0", description: "Vehicle Identification Number", min: 0, max: 0, unit: "?", convertToUseful: this.bitDecoder},
+    {mode: this.modeVin, pid: "01", bytes: 1, name: "vin_mscout", description: "VIN message count", min: 0, max: 0, unit: "?", convertToUseful: this.convertVIN_count},
+    {mode: this.modeVin, pid: "02", bytes: 1, name: "vin", description: "Vehicle Identification Number", min: 0, max: 0, unit: "?", convertToUseful: this.convertVIN}
 ];
 
 
