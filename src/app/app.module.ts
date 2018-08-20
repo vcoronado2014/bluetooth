@@ -8,6 +8,7 @@ import { MyApp } from './app.component';
 
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { BluetoothPage } from './../pages/bluetooth/bluetooth';
+import { ComunicacionService } from '../app/Servicios/ComunicacionService';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { BluetoothPage } from './../pages/bluetooth/bluetooth';
     BluetoothPage,
     StatusBar,
     SplashScreen,
+    ComunicacionService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

@@ -39,10 +39,13 @@
     <ion-list-header>
       Respuestas
     </ion-list-header>
+    <ion-item>Mensaje: {{item.Mensaje}}</ion-item>
     <ion-item>{{item.Modo}}, {{item.Nombre}}</ion-item>
     <ion-item>{{item.Descripcion}}, Valor: {{item.Valor}}, Unidad: {{item.Unidad}}</ion-item>
     <ion-item>{{item.Fecha}}</ion-item>
   </ion-list>
+  <button ion-button (click)="limpiarMensajes()" block>Limpiar Mensajes</button>
+  <button ion-button (click)="iniciarIntervalo()" block>Iniciar Intervalo</button>
 
   <form (ngSubmit)="enviarMensajes();">
     <ion-item>
