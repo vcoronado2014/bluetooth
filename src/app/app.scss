@@ -14,3 +14,42 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+.hidden{
+    display:none;
+  }
+/*MediaQuery Iphone5*/
+@media screen and (max-width: 320px) {
+    /*Calendario-Vertical*/
+    .calendario-vertical{
+      div{
+        margin-bottom: -7px;
+      }
+    }  
+      /*Detalle-usuario*/
+    .detalle-usuario{
+      .scroll-content{
+        margin-top:0 !important;    
+      }
+    }
+  }
+  
+  @media only screen and (orientation: landscape) {
+      .hidden{
+        display:flex;
+      }
+      .show{
+        display:none;
+      }
+    }
+
+    .calendario-vertical{
+        div{
+          margin-bottom: -7px;
+        }
+      }
+      /*Calendario-Horizontal*/
+      .calendario-horizontal{
+        ion-grid{
+          padding:0;
+        }
+      }

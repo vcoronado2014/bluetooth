@@ -1,21 +1,15 @@
 import { Component, Injectable } from '@angular/core';
-import { IonicPage, Platform, ToastController, AlertController, Refresher } from 'ionic-angular';
+import { IonicPage, Platform, ToastController, AlertController, Refresher, NavController } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { Observable } from 'rxjs';
 import { ISubscription } from "rxjs/Subscription";
 //servicio
 import { ComunicacionService } from '../../app/Servicios/ComunicacionService';
+//paginas
+import { SeleccionSkinPage } from '../../pages/seleccion-skin/seleccion-skin';
 
-/**
- * Esta clase maneja la conectividad bluetooth
- * @author Juan Lozoya <jlozoya1995@gmail.com>
- * @see [Bluetooth Serial](https://ionicframework.com/docs/native/bluetooth-serial/)
- */
+
 @Injectable()
-@IonicPage({
-  name: 'BluetoothPage',
-  priority: 'high'
-})
 @Component({
   selector: 'bluetooth-page',
   templateUrl: 'bluetooth.html'
@@ -32,6 +26,7 @@ export class BluetoothPage {
   //variables nuevas
   conectadoA: string = "";
   dataSalida: Array<any> = [];
+  estaConectado = false;
   //variables de hex
   //responsePIDS;
   modeRealTime = "01";
@@ -44,14 +39,29 @@ export class BluetoothPage {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
     private bluetoothSerial: BluetoothSerial,
-    public blueService: ComunicacionService
+    public blueService: ComunicacionService,
+    public navCtrl: NavController,
   ) { 
     //contenido del cosntructor
 
   }
-  iniciarIntervalo(){
+  siguiente(){
+    //abrir la pagina siguiente a la conexión, cambiar esto despues
+    /*
+    if (this.estaConectado){
+      this.navCtrl.push(SeleccionSkinPage, { usuario: this.estaConectado });
+    }
+    else{
+      this.presentToast('No puede seguir, debe conectarse a un dispositivo bluetooth.');
+    }
+    */
+   this.navCtrl.push(SeleccionSkinPage, { estaConectado: this.estaConectado });
+  }
+  iniciarIntervalo() {
     var sms = "010D";
-    setInterval(this.enviarMensajesI(sms), 2000);
+    Observable.interval(5000).subscribe(() => {
+      this.enviarMensajesI(sms);
+    });
   }
   /**
    * Al entrar en la ventana ejecuta la función para buscar dispositivos bluetooth.
@@ -144,6 +154,7 @@ export class BluetoothPage {
                   this.presentToast(success);
                 }, fail => {
                   this.conectadoA = "No hay dispositivo";
+                  this.estaConectado = true;
                   this.presentToast(fail);
                 });
               }
@@ -168,6 +179,7 @@ export class BluetoothPage {
               handler: () => {
                 this.conectar(seleccion.id).then(success => {
                   this.conectadoA = seleccion.name;
+                  this.estaConectado = true;
                   this.presentToast(success);
                 }, fail => {
                   this.conectadoA = "No hay dispositivo";

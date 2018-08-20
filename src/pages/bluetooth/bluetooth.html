@@ -12,8 +12,9 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content>
-  <h5>Usted está conectado a: {{conectadoA}}</h5>
+<ion-content padding>
+  <h5>Seleccione el dispositivo ELM327 bluetooth al cual desea conectarse:</h5>
+  
 
   <ion-refresher *ngIf="mostrarSpiner === false" (ionRefresh)="refreshBluetooth($event)">
     <ion-refresher-content refreshingText="Buscando dispositivos bluetooth"></ion-refresher-content>
@@ -24,6 +25,18 @@
     Buscando dispositivos bluetooth
   </ion-segment>
 
+  <ion-list>
+    <ion-list-header>
+      Dispositivos Disponibles
+    </ion-list-header>
+    <button (click)="revisarConexion(device)" *ngFor="let device of devices" ion-item>
+      <ion-icon name="bluetooth" item-start></ion-icon>
+      <h2>Nombre: {{device.name}}</h2>
+      <p>Dirección <span [hidden]="device.address == undefined">mac</span><span [hidden]="device.uuid == undefined">uuid</span>: {{device.address}}{{device.uuid}}</p>
+      <p><span [hidden]="device.class == undefined">Clase</span><span [hidden]="device.rssi == undefined">Rssi</span>: {{device.class}}{{device.rssi}}</p>
+    </button>
+  </ion-list>
+<!--
   <ion-item-group>
     <h3>Dispositivos Disponibles</h3>
     <ion-item-sliding *ngFor="let device of devices">
@@ -35,6 +48,15 @@
       </button>
     </ion-item-sliding>
   </ion-item-group>
+-->
+  <!-- 
+    mostrar iconos de conexion o desconexion cambiar esto despues 
+      
+  -->
+  <h5 *ngIf="estaConectado == true"><ion-icon name="bluetooth"></ion-icon> Usted está conectado a: {{conectadoA}}</h5>
+  <h5 *ngIf="estaConectado == false"><ion-icon name="bluetooth"></ion-icon> No hay conexión activa</h5>
+  
+  <!--
   <ion-list *ngFor="let item of dataSalida">
     <ion-list-header>
       Respuestas
@@ -56,9 +78,12 @@
       <button ion-button type="submit" block>Enviar</button>
     </ion-segment>
   </form>
-
+-->
   <div [hidden]="devices.length > 0 || mostrarSpiner == true" text-center>
     <p>No se han encontrado dispositivos, activa el bluetooth y desliza hacia abajo para volver a buscar</p>
   </div>
-
+  <!-- cambiar esto despues
+  <button ion-button (click)="siguiente()" block *ngIf="estaConectado == true">Siguiente</button>
+  -->
+  <button ion-button (click)="siguiente()" block>Siguiente</button>
 </ion-content>

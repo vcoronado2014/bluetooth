@@ -2,7 +2,7 @@ import { Injectable, Component } from '@angular/core';
 import { Platform, ToastController, AlertController, Refresher } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { Observable } from 'rxjs';
-import { ISubscription } from "rxjs/Subscription";
+import { ISubscription, Subscription } from "rxjs/Subscription";
 
 @Injectable()
 
@@ -14,6 +14,7 @@ export class ComunicacionService{
     modeVin = "09";
 
     reader: Observable<any>;
+    
 
     constructor(
         private platform: Platform,
