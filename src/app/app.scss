@@ -14,8 +14,16 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
-.card-md {
+.card-personal {
   /* margin: 10px; */
+  border-radius: 2px;
+  width: 100%;
+  background: #fff;
+  -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+.card-md {
+  margin: 0;
   min-height: 73.67px;
   border-radius: 2px;
   width: 100%;
@@ -25,7 +33,7 @@
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 .card-header-md {
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   color: #222;
   padding: 3px;
 }

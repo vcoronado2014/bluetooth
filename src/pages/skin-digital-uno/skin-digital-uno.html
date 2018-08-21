@@ -21,10 +21,10 @@
                 <ion-col no-padding col-6>
                   <ion-card class="card-indicadores" style="margin-top: 0;">
                     <ion-card-header text-center>
-                      Tº Motor
+                        Throttle Pos
                     </ion-card-header>
                     <ion-card-content style="font-size: 3rem;" text-center>
-                      {{temperaturaActual}} <span style="font-size: 1rem;">ºC</span> 
+                      <span>{{throttleposActual}}</span> <sub style="font-size: 1.3rem;">%</sub> 
                     </ion-card-content>
                   </ion-card>
                 </ion-col>
@@ -33,45 +33,11 @@
                       <ion-card-header text-center>
                         Flujo Aire
                       </ion-card-header>
-                      <ion-card-content style="font-size: 3rem;" text-center>
-                        {{temperaturaActual}} <span style="font-size: 1rem;">g/s</span>
+                      <ion-card-content style="font-size: 3.3rem;" text-center>
+                        <span>{{flujoAireActual}}</span> <sub style="font-size: 1.3rem;">g/s</sub>
                       </ion-card-content>
                     </ion-card>
                   </ion-col>
-              <!--
-              <ion-col>
-
-                  <linear-gauge
-                  width="150"
-                  height="100"
-                  units="T°"
-                  title="T° Motor"
-                  min-value="0"
-                  max-value="120"
-                  major-ticks="[0,40,80,120]"
-                  minor-ticks="10"
-                  stroke-ticks="true"
-                  color-plate="#fff"
-                  border-shadow-width="0"
-                  borders="false"
-                  bar-begin-circle="false"
-                  tick-side="left"
-                  number-side="left"
-                  needle-side="left"
-                  needle-type="line"
-                  needle-width="3"
-                  color-needle="#222"
-                  color-needle-end="#222"
-                  animation-duration="1500"
-                  animation-rule="linear"
-                  animation-target="plate"
-                  bar-width="5"
-                  ticks-width="20"
-                  ticks-width-minor="5"
-                  [attr.value]="temperaturaActual"
-                ></linear-gauge>
-              </ion-col>
-            -->
             </ion-row>
             <ion-row no-padding>
                 <ion-col no-padding col-12>
@@ -79,12 +45,42 @@
                       <ion-card-header text-center>
                         RPM
                       </ion-card-header>
-                      <ion-card-content style="font-size: 3.5rem;" text-center>
+                      <ion-card-content style="font-size: 5rem;" text-center>
                         {{rpmActual}}
                       </ion-card-content>
                     </ion-card>
                   </ion-col>
               </ion-row>
+              <ion-row no-padding>
+                  <ion-col no-padding col-12>
+                      <ion-card class="card-indicadores" style="margin-top: 0;">
+                        <ion-card-header text-center>
+                          T° Motor
+                        </ion-card-header>
+                        <ion-card-content style="font-size: 5rem;" text-center>
+                          {{temperaturaActual}} <sub style="font-size: 1.3rem;">°C</sub> 
+                        </ion-card-content>
+                      </ion-card>
+                    </ion-col>
+                </ion-row>
+                <ion-row no-padding>
+                    <ion-col no-padding col-12>
+
+                    </ion-col>
+                  <!--
+                    <linear-gauge
+                    width="300"
+                    height="50"
+                    title="Combustible"
+                    min-value="0"
+                    max-value="100"
+                    major-ticks="[20,40,60,80,100]"
+                    minor-ticks="5"
+                    stroke-ticks="true"
+                    [attr.value]="40"
+                  ></linear-gauge>
+                  -->
+                </ion-row>
           </ion-col>
           <ion-col col-6 style="text-align: center;">
               <radial-gauge
@@ -117,8 +113,25 @@
                         </span>
                       -->
           </ion-col>
-          <ion-col>
-            3 of 3
+          <ion-col no-padding no-margin>
+            <!-- esta es la columna lateral derecha -->
+            <ion-row no-padding no-margin>
+              <ion-col col-12 no-margin>
+                <!-- primera columna derecha de la fila 1-->
+                <ion-card class="card-indicadores" style="margin-top: 0;">
+                    <ion-card-header text-center>
+                      Combustible
+                    </ion-card-header>
+                    <ion-card-content text-center>
+                        <ion-range min="0" max="100" step="2" [(ngModel)]="throttleposActual">
+                            <ion-icon small range-left name="sunny"></ion-icon>
+                            <ion-icon range-right name="sunny"></ion-icon>
+                          </ion-range>
+                    </ion-card-content>
+                  </ion-card>
+              </ion-col>
+            </ion-row>
+          
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -144,7 +157,7 @@
         <button ion-button round outline icon-only color="light">
             <ion-icon name="star"></ion-icon>
           </button>
-          <button ion-button round outline icon-only color="secondary" style="float: right;">
+          <button ion-button round outline icon-only color="{{colorBlue}}" style="float: right;">
               <ion-icon name="bluetooth"></ion-icon>
             </button>
         
