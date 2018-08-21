@@ -23,6 +23,8 @@ export class SkinDigitalUnoPage {
   //variable para mostrar la velocidad
   velocidadActual: 0;
   temperaturaActual: 0;
+  rpmActual: 0;
+  flujoAireActual: 0;
 
   constructor(
     public navCtrl: NavController, 
@@ -40,11 +42,15 @@ export class SkinDigitalUnoPage {
   iniciarIntervalo() {
     var sms = "010D";
     var smsT = "0105";
+    var smsR = "010C";
     Observable.interval(500).subscribe(() => {
       this.enviarMensajesI(sms);
     });
     Observable.interval(3000).subscribe(() => {
       this.enviarMensajesT(smsT);
+    });
+    Observable.interval(600).subscribe(() => {
+      this.enviarMensajesR(smsR);
     });
   }
   enviarMensajesI(sms) {
@@ -84,7 +90,7 @@ export class SkinDigitalUnoPage {
       //this.mensaje = "";
     });
   }
-  enviarMensajesT(sms) {
+  enviarMensajesR(sms) {
     sms = sms + '\r';
     //this.presentToast('Enviando mensaje: ' + sms);
     this.conexionMensajes =this.blueService.dataInOut(sms).subscribe(data => {
@@ -106,7 +112,44 @@ export class SkinDigitalUnoPage {
             Unidad: obj.unit,
             Fecha: new Date()
           };
-          this.temperaturaActual = entidad.Valor;
+          this.rpmActual = entidad.Valor;
+        }
+      }
+      //this.presentToast('variable salida: ' + entrada);
+      if (entrada != ">") {
+        if (entrada != "") {
+          console.log(`Entrada: ${entrada}`);
+          //this.presentToast('console log:' + entrada);
+        }
+      } else {
+        this.conexionMensajes.unsubscribe();
+      }
+      //this.mensaje = "";
+    });
+  }
+  enviarMensajesT(sms) {
+    sms = sms + '\r';
+    //this.presentToast('Enviando mensaje: ' + sms);
+    this.conexionMensajes =this.blueService.dataInOut(sms).subscribe(dataT => {
+      let entrada = dataT.substr(0, dataT.length - 1);
+      //this.presentToast('data:' + data);
+      if (dataT && dataT.length > 0) {
+        var objT = this.blueService.parseObdCommand(dataT);
+        if (objT.name && objT.name.length > 0) {
+          //this.dataSalida.push(entidad);
+          var entidadT = {
+            Mensaje: sms,
+            Modo: objT.mode,
+            Pid: objT.pid,
+            Nombre: objT.name,
+            Descripcion: objT.description,
+            Valor: objT.value,
+            Minimo: objT.min,
+            Maximo: objT.max,
+            Unidad: objT.unit,
+            Fecha: new Date()
+          };
+          this.temperaturaActual = entidadT.Valor;
         }
       }
       //this.presentToast('variable salida: ' + entrada);
