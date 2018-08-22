@@ -13,7 +13,67 @@
 </ion-header>
 
 
-<ion-content class="card-background-page">
+<ion-content>
+    <ion-grid>
+      <ion-row>
+        <ion-list col-12 col-sm-6>
+          <ion-item>
+            <ion-thumbnail item-start>
+              <img src="../assets/img/img-digital.jpg">
+            </ion-thumbnail>
+            <h2>Formato Digital 1</h2>
+            <p text-wrap>Elegante</p>
+            <button ion-button clear item-end (click)="AbrirSkinDigitalUno()">Ver</button>
+          </ion-item>
+        </ion-list>
+        <ion-list col-12 col-sm-6>
+          <ion-item>
+            <ion-thumbnail item-start>
+              <img src="../assets/img/skin-analogo.jpg">
+            </ion-thumbnail>
+            <h2>Formato Análogo 1</h2>
+            <p text-wrap>Elegante</p>
+            <button ion-button clear item-end>Ver</button>
+          </ion-item>
+        </ion-list>
+        <ion-list col-12 col-sm-6>
+          <ion-item>
+            <ion-thumbnail item-start>
+              <img src="../assets/img/img-digital.jpg">
+            </ion-thumbnail>
+            <h2>Formato Digital 2</h2>
+            <p text-wrap>Elegante</p>
+            <button ion-button clear item-end>Ver</button>
+          </ion-item>
+        </ion-list>
+        <ion-list col-12 col-sm-6>
+          <ion-item>
+            <ion-thumbnail item-start>
+              <img src="../assets/img/skin-analogo.jpg">
+            </ion-thumbnail>
+            <h2>Formato Análogo 2</h2>
+            <p text-wrap>Elegante</p>
+            <button ion-button clear item-end>Ver</button>
+          </ion-item>
+        </ion-list>
+        <!--
+              <ion-col col-12 col-sm-6>
+                1 of 4
+              </ion-col>
+              <ion-col col-12 col-sm-6>
+                2 of 4
+              </ion-col>
+              <ion-col col-12 col-sm-6>
+                3 of 4
+              </ion-col>
+              <ion-col col-12 col-sm-6>
+                4 of 4
+              </ion-col>
+            -->
+      </ion-row>
+    </ion-grid>
+
+<!--
     <ion-card (click)="AbrirSkinDigitalUno()">
         <img src="../../assets/img/img-digital.jpg"/>
         <div class="card-title">Skin Digital</div>
@@ -25,4 +85,5 @@
         <div class="card-title">Skin Análogo</div>
         <div class="card-subtitle">Panel Análogo</div>
       </ion-card>
+    -->
 </ion-content>
