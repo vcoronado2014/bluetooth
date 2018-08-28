@@ -3,6 +3,8 @@ import { Platform, ToastController, AlertController, Refresher } from 'ionic-ang
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { Observable } from 'rxjs';
 import { ISubscription, Subscription } from "rxjs/Subscription";
+//SETTINGS
+import {AppSettings } from '../AppSettings';
 
 @Injectable()
 
@@ -142,6 +144,31 @@ export class ComunicacionService{
         Unidad: '',
         Fecha: new Date()
       };
+    }
+    porocesarAlertaSimple(valor, nombre){
+      var retorno = "font-yellow";
+      //todo esto deberiamos dejarlo en variables del usuario personalizadas
+      //lo haremos así por mientras
+      if (nombre == "vss"){
+        //velocidad
+        //aca deberíamos procesar la rural y la urbana
+        if (valor > AppSettings.ALERTA_VELOCIDAD_URBANA && valor <= AppSettings.ALERTA_VELOCIDAD_RURAL){
+          //urbana
+          retorno = 'alerta-velocidad-urbana';
+        }
+        if (valor > AppSettings.ALERTA_VELOCIDAD_RURAL){
+          //urbana
+          retorno = 'alerta-velocidad-rural';
+        }
+      }
+      //temperatura
+      if (nombre == "temp"){
+        if (valor > AppSettings.ALERTA_TEMPERATURA_MOTOR){
+          retorno = 'alerta-temperatura';
+        }
+      }
+
+      return retorno;
     }
     //observables
     parseObdCommandObs(hexString) {

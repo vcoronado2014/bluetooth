@@ -14,6 +14,15 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+.dark {
+  background-color: #5A5349;
+}
+.font-yellow{
+  color: #94FE90;
+}
+.border-uno{
+  //#A19A94
+}
 .card-personal {
   /* margin: 10px; */
   border-radius: 2px;

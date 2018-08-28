@@ -13,6 +13,7 @@ import { BluetoothPage } from './../pages/bluetooth/bluetooth';
 //nuevas paginas
 import { SeleccionSkinPage } from './../pages/seleccion-skin/seleccion-skin';
 import { SkinDigitalUnoPage } from './../pages/skin-digital-uno/skin-digital-uno';
+import { SkinDigitalDosPage } from './../pages/skin-digital-dos/skin-digital-dos';
 //nuevo servicio
 import { ComunicacionService } from '../app/Servicios/ComunicacionService';
 
@@ -21,7 +22,8 @@ import { ComunicacionService } from '../app/Servicios/ComunicacionService';
     MyApp,
     SeleccionSkinPage,
     BluetoothPage,
-    SkinDigitalUnoPage
+    SkinDigitalUnoPage,
+    SkinDigitalDosPage
   ],
   imports: [
     BrowserModule,
@@ -35,7 +37,8 @@ import { ComunicacionService } from '../app/Servicios/ComunicacionService';
     MyApp,
     SeleccionSkinPage,
     BluetoothPage,
-    SkinDigitalUnoPage
+    SkinDigitalUnoPage,
+    SkinDigitalDosPage
   ],
   providers: [
     BluetoothSerial,
