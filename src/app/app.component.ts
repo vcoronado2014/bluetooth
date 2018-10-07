@@ -3,6 +3,7 @@ import { Platform, Nav } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { BluetoothPage } from '../pages/bluetooth/bluetooth';
+//import { Http } from '@angular/http';
 
 
 @Component({

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, Platform } from 'ionic-angular';
+import { NavController, NavParams, Platform, ToastController } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { Observable } from 'rxjs';
 import { ISubscription } from "rxjs/Subscription";
@@ -7,9 +7,17 @@ import { ISubscription } from "rxjs/Subscription";
 import { of } from 'rxjs/observable/of';
 import { interval } from 'rxjs/observable/interval';
 import { delay } from 'rxjs/operators';
+//geolocation
+import { Geolocation } from '@ionic-native/geolocation';
+//weather
+import { OpenWeatherMapModule } from 'ionic-openweathermap';
 
 //servicio
 import { ComunicacionService } from '../../app/Servicios/ComunicacionService';
+//import { OpenWeatherMapProvider } from 'ionic-openweathermap/dist/src/providers/openweathermap-provider';
+import { Http } from '@angular/http';
+import 'rxjs/add/operator/map';
+
 
 /**
  * Generated class for the SkinDigitalDosPage page.
@@ -106,13 +114,22 @@ export class SkinDigitalDosPage {
     Unidad: '',
     Fecha: new Date()
   };
+  //geolocation
+  latitud: any;
+  longitud: any;
+  data: any;
+  weatherData: any={};
 
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
     private bluetoothSerial: BluetoothSerial,
     public blueService: ComunicacionService,
-    private platform: Platform
+    private platform: Platform,
+    private geolocation: Geolocation,
+    private toastCtrl: ToastController,
+    public http: Http
+    //private openweathermapProvider: OpenWeatherMapProvider
   ) {
     this.estaConectado = navParams.get('estaConectado');
     if (this.estaConectado)
@@ -199,7 +216,54 @@ export class SkinDigitalDosPage {
       //this.iniciarIntervalo();
       this.iniciarIntervaloDos();
       //this.getMultiValueObservableVel();
+      //iniciar geolocation
+      this.geolocation.getCurrentPosition().then((resp) => {
+        this.latitud = resp.coords.latitude;
+        this.longitud = resp.coords.longitude;
+        // resp.coords.latitude
+        // resp.coords.longitude
+       }).catch((error) => {
+         console.log('Error getting location', error);
+         this.presentToast(error);
+       });
+      this.weatherForLocation()
+        .then(data => {
+          this.weatherData = data;
+        });
+
+      //llamada
+      //var url = 'http://api.openweathermap.org/data/2.5/weather?lat=-' + this.latitud + '&lon=-' + this.longitud + '&APPID=4678c7f87342c7d1a977f7c45c13a719';
+
+
+      /*
+      this.openweathermapProvider.load(options2)
+      .then(data => {
+
+        //this.openweathermapProvider.setWindSpeed(data.wind.speed);
+        //this.openweathermapProvider.setTemperature(data.main.temp);
+        //this.openweathermapProvider.setHumidity(data.main.humidity);
+        //this.openweathermapProvider.setMaxTemp(data.main.temp_max);
+        //this.openweathermapProvider.setMinTemp(data.main.temp_min);
+        //this.openweathermapProvider.setAthmosphericPressure(data.main.pressure);
+        //this.openweathermapProvider.setWeatherGroup(data.weather[0].main);
+        //this.openweathermapProvider.setWeatherDescription(data.weather[0].description);
+      }).catch((error) => {
+         console.log('Error getting wheater', error);
+         this.presentToast(error);
+       });;
+  
+    */
+
     });
+  }
+  weatherForLocation() {
+    return new Promise(resolve => {
+      this.http.get("http://api.openweathermap.org/data/2.5/weather?lat=" + this.latitud + "&lon=" + this.longitud + "&appid=4678c7f87342c7d1a977f7c45c13a719").map(res => res.json())
+        .subscribe(data => {
+          this.data = data;
+          resolve(this.data);
+        })
+    })
   }
   ngOnDestroy() {
     if (this.interval) {
@@ -340,6 +404,13 @@ export class SkinDigitalDosPage {
  }
   ionViewDidLoad() {
     console.log('ionViewDidLoad SkinDigitalDosPage');
+  }
+  private presentToast(text: string) {
+    let toast = this.toastCtrl.create({
+      message: text,
+      duration: 6000
+    });
+    toast.present();
   }
 
 }
