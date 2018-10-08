@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform, ToastController } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { ISubscription } from "rxjs/Subscription";
 //nuevos
 import { of } from 'rxjs/observable/of';
@@ -14,9 +14,11 @@ import { OpenWeatherMapModule } from 'ionic-openweathermap';
 
 //servicio
 import { ComunicacionService } from '../../app/Servicios/ComunicacionService';
+import { ServicioClima } from '../../app/Servicios/ServicioClima';
 //import { OpenWeatherMapProvider } from 'ionic-openweathermap/dist/src/providers/openweathermap-provider';
-import { Http } from '@angular/http';
+import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
+//import { promises } from 'fs';
 
 
 /**
@@ -29,6 +31,7 @@ import 'rxjs/add/operator/map';
 @Component({
   selector: 'page-skin-digital-dos',
   templateUrl: 'skin-digital-dos.html',
+  providers: [ServicioClima]
 })
 export class SkinDigitalDosPage {
   estaConectado = false;
@@ -119,6 +122,9 @@ export class SkinDigitalDosPage {
   longitud: any;
   data: any;
   weatherData: any={};
+  //clima
+  public icon;
+  public current;
 
   constructor(
     public navCtrl: NavController, 
@@ -128,6 +134,7 @@ export class SkinDigitalDosPage {
     private platform: Platform,
     private geolocation: Geolocation,
     private toastCtrl: ToastController,
+    private clima:ServicioClima,
     public http: Http
     //private openweathermapProvider: OpenWeatherMapProvider
   ) {
@@ -220,16 +227,30 @@ export class SkinDigitalDosPage {
       this.geolocation.getCurrentPosition().then((resp) => {
         this.latitud = resp.coords.latitude;
         this.longitud = resp.coords.longitude;
+        this.clima.getCurrentForecast(this.latitud, this.longitud).subscribe(
+          data =>{
+    
+            this.current = data;
+    
+          },
+              err => console.error(err),
+              () => console.log('get clima completed')
+         );
+
         // resp.coords.latitude
         // resp.coords.longitude
        }).catch((error) => {
          console.log('Error getting location', error);
          this.presentToast(error);
        });
-      this.weatherForLocation()
-        .then(data => {
-          this.weatherData = data;
-        });
+       /*
+      this.weatherForLocation().subscribe(
+        data =>{
+            this.weatherData = data;
+        },
+            err => console.error(err),
+            () => console.log('get iconos completed')
+       );
 
       //llamada
       //var url = 'http://api.openweathermap.org/data/2.5/weather?lat=-' + this.latitud + '&lon=-' + this.longitud + '&APPID=4678c7f87342c7d1a977f7c45c13a719';
@@ -256,7 +277,40 @@ export class SkinDigitalDosPage {
 
     });
   }
-  weatherForLocation() {
+  weatherForLocation(lat, lon) {
+    let url = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=4678c7f87342c7d1a977f7c45c13a719&units=metric";
+    
+    let self = this;
+    return new Promise((resolve, reject) => {
+      const headerDict = {
+        'Content-Type': 'application/json'
+      };
+      const headerObj = { headers: new Headers(headerDict)};
+      self.http.get(url, headerObj).subscribe(
+        function(response){
+          console.log(response);
+          resolve(response);
+
+        },
+        function(error){
+          console.log(error);
+          reject(error);
+        }
+      );
+    });
+    /*
+    return this.http.get(url, {
+      headers: new Headers({ 'Content-Type': 'application/json' })
+    })
+      .map(res => {
+        //console.log(res.json().currently.apparentTemperature);
+        this.data = res.json();
+
+
+        return this.data;
+
+      });
+
     return new Promise(resolve => {
       this.http.get("http://api.openweathermap.org/data/2.5/weather?lat=" + this.latitud + "&lon=" + this.longitud + "&appid=4678c7f87342c7d1a977f7c45c13a719").map(res => res.json())
         .subscribe(data => {
@@ -264,6 +318,7 @@ export class SkinDigitalDosPage {
           resolve(this.data);
         })
     })
+*/
   }
   ngOnDestroy() {
     if (this.interval) {

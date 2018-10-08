@@ -60,4 +60,27 @@ page-skin-digital-dos {
         color: #94FE90;
 
     }
+    .iconClima{
+        bottom: 19px;
+        margin-left: 5px;
+        font-size: 45px;
+        position: relative;
+        color:#fff;
+      }
+      .climaActual{
+        margin-top: 0;
+        margin-left: 9px;
+        font-size: 30px;
+        position: absolute;
+        top: 247px;
+        color: #fff;
+        font-weight: 500
+      }
+      .powered{
+        font-size: 72%;
+        position: relative;
+        top: 14px;
+        right: 0px;
+        color: #757575;
+      } 
 }
