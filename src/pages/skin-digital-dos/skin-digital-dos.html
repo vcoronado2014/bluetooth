@@ -122,54 +122,63 @@
       <ion-col>
         <!-- fila 1 de la columna izquierda -->
         <ion-row>
-            <ion-col no-padding col-6>
-              <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
-                <ion-card-header text-center>
-                  Latitud
-                </ion-card-header>
-                <ion-card-content style="font-size: 3rem;" text-center>
-                  <span>{{latitud}}</span>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-            <ion-col no-padding col-6>
-              <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
-                <ion-card-header text-center>
-                  Longitud
-                </ion-card-header>
-                <ion-card-content style="font-size: 3rem;" text-center>
-                  <span>{{longitud}}</span>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-          <!-- fila 2 de la columna izquierda-->
-          <ion-row no-padding>
-            <ion-col no-padding col-12>
-              <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
-                <ion-card-header text-center>
-                  RPM
-                </ion-card-header>
-                <ion-card-content style="font-size: 5rem;" text-center>
-                    {{rpmActual}}
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-          <!-- fila 3 de la columna izquierda -->
-          <ion-row no-padding>
-            <ion-col no-padding col-12>
-              <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
-                <ion-card-header text-center>
-                  T° Motor
-                </ion-card-header>
-                <ion-card-content style="font-size: 5rem;" text-center class="{{estiloAlertaTemperatura}}">
-                    {{temperaturaActual}}
-                  <sub style="font-size: 1.3rem;">°C</sub>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
+          <ion-col no-padding col-12>
+            <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
+              <ion-card-header text-center>
+                {{current.summary}}
+              </ion-card-header>
+              <ion-card-content text-center>
+                <ion-row no-padding>
+        
+                  <i class="{{ icon }} iconClima"></i>
+        
+                  <span style="font-size: 2rem;">{{current.temperature}} °C</span>
+        
+                </ion-row>
+
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+        <!-- fila 2 de la columna izquierda-->
+        <ion-row no-padding text-center style="font-family: 'Digital7';color: #94FE90;">
+          <ion-col col-6 style="padding: 0;">
+            <h6 style="font-size: 1.2rem;">Humedad</h6>
+            <span style="font-size: 2.6rem;">
+              {{current.humidity}}%
+            </span>
+          </ion-col>
+          <ion-col col-6 style="padding: 0;">
+            <h6 style="font-size: 1.2rem;">Visibilidad</h6>
+            <span style="font-size: 2.6rem;">
+              {{current.visibility}}Km
+            </span>
+          </ion-col>
+          <ion-col col-6 style="padding: 0;">
+            <h6 style="font-size: 1.2rem;">Lluvia</h6>
+            <span style="font-size: 2.6rem;">
+              {{current.precipProbability}}%
+            </span>
+          </ion-col>
+          <ion-col col-6 style="padding: 0;">
+            <h6 style="font-size: 1.2rem;">Indice UV</h6>
+            <span style="font-size: 2.6rem;">
+              {{current.uvIndex}}
+            </span>
+          </ion-col>
+        </ion-row>
+        <ion-row text-center>
+          <p text-wrap text-justify class="cuadro-info">
+            {{dailySummary}}
+          </p>
+        </ion-row>
+        <ion-row no-padding text-center>
+          12-02-1978 <ion-icon name="refresh" (click)="cargarClima(loading2)"></ion-icon>
+        </ion-row>
+        <ion-row text-center>
+          <a class="powered" href="https://darksky.net/poweredby/">Powered by Dark Sky</a>
+        </ion-row>
+
       </ion-col>
     </ion-row>
   </ion-grid>

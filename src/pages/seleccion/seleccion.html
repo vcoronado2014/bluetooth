@@ -1,0 +1,46 @@
+<!--
+  Generated template for the SeleccionPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Selección</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-row>
+    <h3>¿Como deseas conectarte?</h3>
+    <p>Selecciona de las opciones disponibles la forma en que deseas conectarte para ver el dashboard del vehíuclo.</p>
+  </ion-row>
+  <ion-row>
+    <ion-col col-12 col-sm-6 (click)="abrirOBD()">
+      <ion-card>
+        <ion-card-header text-center>
+          <h6><strong>Mediante OBD2</strong></h6>
+        </ion-card-header>
+        <ion-card-content>
+          Si te conectas mediante un OBD2 compatible, el dashboard te mostrará la información en tiempo real del ECU de tu vehículo, tendrás 
+          muchos parámetros disponibles para visualizar.
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+    <ion-col col-12 col-sm-6 (click)="abrirGPS()">
+      <ion-card>
+        <ion-card-header text-center>
+          <h6><strong>Mediante GPS</strong></h6>
+        </ion-card-header>
+        <ion-card-content>
+          Si te conectas mediante GPS, el dashboard obtendrá la información del GPS para mostrarte información de tu vehículo, no te mostrará 
+          los parámetros del ECU del automóvil.
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+
+</ion-content>

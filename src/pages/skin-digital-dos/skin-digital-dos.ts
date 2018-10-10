@@ -1,14 +1,16 @@
-import { Component } from '@angular/core';
-import { NavController, NavParams, Platform, ToastController } from 'ionic-angular';
+import { Component, NgZone } from '@angular/core';
+import { NavController, NavParams, Platform, ToastController, LoadingController } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { Observable } from 'rxjs/Observable';
 import { ISubscription } from "rxjs/Subscription";
+import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion';
+import { BackgroundGeolocation} from '@ionic-native/background-geolocation';
 //nuevos
 import { of } from 'rxjs/observable/of';
 import { interval } from 'rxjs/observable/interval';
 import { delay } from 'rxjs/operators';
 //geolocation
-import { Geolocation } from '@ionic-native/geolocation';
+import { Geolocation, Geoposition } from '@ionic-native/geolocation';
 //weather
 import { OpenWeatherMapModule } from 'ionic-openweathermap';
 
@@ -18,6 +20,8 @@ import { ServicioClima } from '../../app/Servicios/ServicioClima';
 //import { OpenWeatherMapProvider } from 'ionic-openweathermap/dist/src/providers/openweathermap-provider';
 import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
+import { environment } from '../../environments/environments';
+//import { EILSEQ } from 'constants';
 //import { promises } from 'fs';
 
 
@@ -122,9 +126,15 @@ export class SkinDigitalDosPage {
   longitud: any;
   data: any;
   weatherData: any={};
+  public speed;
+  public watch: any;
+  public x;
   //clima
-  public icon;
-  public current;
+  icon;
+  current;
+  dailySummary;
+  operacion;
+  loading2;
 
   constructor(
     public navCtrl: NavController, 
@@ -135,10 +145,19 @@ export class SkinDigitalDosPage {
     private geolocation: Geolocation,
     private toastCtrl: ToastController,
     private clima:ServicioClima,
-    public http: Http
+    public http: Http,
+    private loadingCtrl: LoadingController,
+    private deviceMotion: DeviceMotion,
+    public backgroundGeolocation: BackgroundGeolocation,
+    public zone: NgZone
     //private openweathermapProvider: OpenWeatherMapProvider
   ) {
+    this.loading2 =  this.loadingCtrl.create({
+      content: 'Espere mientras se carga info del clima'
+    });
+    
     this.estaConectado = navParams.get('estaConectado');
+    this.operacion = navParams.get('operacion');
     if (this.estaConectado)
     {
       this.colorBlue = 'secondary';
@@ -217,108 +236,249 @@ export class SkinDigitalDosPage {
       Unidad: '',
       Fecha: new Date()
     };
+    
+    //clima
+    this.current = {
+      summary: 'N/I',
+      temperature: '0',
+      humidity: '0',
+      visibility: '0',
+      precipProbability: '0',
+      uvIndex: '0',
+      daily: {
+        summary: ''
+      }
+
+    };
+    this.dailySummary = '';
+    this.icon = 'wi wi-day-cloudy';
 
     this.platform.ready().then(() => {
       //iniciamos
       //this.iniciarIntervalo();
-      this.iniciarIntervaloDos();
-      //this.getMultiValueObservableVel();
-      //iniciar geolocation
-      this.geolocation.getCurrentPosition().then((resp) => {
-        this.latitud = resp.coords.latitude;
-        this.longitud = resp.coords.longitude;
-        this.clima.getCurrentForecast(this.latitud, this.longitud).subscribe(
-          data =>{
-    
-            this.current = data;
-    
-          },
-              err => console.error(err),
-              () => console.log('get clima completed')
-         );
-
-        // resp.coords.latitude
-        // resp.coords.longitude
-       }).catch((error) => {
-         console.log('Error getting location', error);
-         this.presentToast(error);
-       });
-       /*
-      this.weatherForLocation().subscribe(
-        data =>{
-            this.weatherData = data;
-        },
-            err => console.error(err),
-            () => console.log('get iconos completed')
-       );
-
-      //llamada
-      //var url = 'http://api.openweathermap.org/data/2.5/weather?lat=-' + this.latitud + '&lon=-' + this.longitud + '&APPID=4678c7f87342c7d1a977f7c45c13a719';
-
-
-      /*
-      this.openweathermapProvider.load(options2)
-      .then(data => {
-
-        //this.openweathermapProvider.setWindSpeed(data.wind.speed);
-        //this.openweathermapProvider.setTemperature(data.main.temp);
-        //this.openweathermapProvider.setHumidity(data.main.humidity);
-        //this.openweathermapProvider.setMaxTemp(data.main.temp_max);
-        //this.openweathermapProvider.setMinTemp(data.main.temp_min);
-        //this.openweathermapProvider.setAthmosphericPressure(data.main.pressure);
-        //this.openweathermapProvider.setWeatherGroup(data.weather[0].main);
-        //this.openweathermapProvider.setWeatherDescription(data.weather[0].description);
-      }).catch((error) => {
-         console.log('Error getting wheater', error);
-         this.presentToast(error);
-       });;
-  
-    */
-
+      //aca limitamos el intervalo dependiendo de la operación
+      if (this.operacion == 'OBD'){
+        this.iniciarIntervaloDos();
+      }
+      else {
+        //iniciar las mediciones con GPS
+        // Get the device current acceleration
+        //this.iniciarIntervaloGPS();
+        //this.iniciarTrackSpeed();
+        this.startTracking();
+      }
+      
+      //lo comentamos por mientras
+      //this.iniciarCargaClima();
     });
   }
-  weatherForLocation(lat, lon) {
-    let url = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=4678c7f87342c7d1a977f7c45c13a719&units=metric";
-    
-    let self = this;
-    return new Promise((resolve, reject) => {
-      const headerDict = {
-        'Content-Type': 'application/json'
-      };
-      const headerObj = { headers: new Headers(headerDict)};
-      self.http.get(url, headerObj).subscribe(
-        function(response){
-          console.log(response);
-          resolve(response);
 
-        },
-        function(error){
-          console.log(error);
-          reject(error);
-        }
-      );
+//nuevo codigo
+  startTracking() {
+    /*this.deviceMotion.getCurrentAcceleration().then(
+      (acceleration: DeviceMotionAccelerationData) => //console.log(acceleration)
+      this.x=0,
+      (error: any) => console.log(error)
+    );
+    var subscription = this.deviceMotion.watchAcceleration().subscribe((acceleration: DeviceMotionAccelerationData) => {
+      //console.log(acceleration);
     });
-    /*
-    return this.http.get(url, {
-      headers: new Headers({ 'Content-Type': 'application/json' })
-    })
-      .map(res => {
-        //console.log(res.json().currently.apparentTemperature);
-        this.data = res.json();
+  */
+    let config = {
+      desiredAccuracy: 0,
+      stationaryRadius: 5,
+      distanceFilter: 1,
+      debug: true,
+      interval: 1000
+    };
 
+    this.backgroundGeolocation.configure(config).subscribe((location) => {
 
-        return this.data;
+      //console.log('BackgroundGeolocation:  ' + location.latitude + ',' + location.longitude);
+      //      console.log(this.lat ,      this.lng,      this.speed);
+
+      this.zone.run(() => {
+        this.latitud = location.latitude;
+        this.longitud = location.longitude;
+        this.speed = (location.speed * 3600) / 1000; // can be speed * 3.6 and should be round for 2 decimal
+        this.velocidadActual = this.speed;
 
       });
 
-    return new Promise(resolve => {
-      this.http.get("http://api.openweathermap.org/data/2.5/weather?lat=" + this.latitud + "&lon=" + this.longitud + "&appid=4678c7f87342c7d1a977f7c45c13a719").map(res => res.json())
-        .subscribe(data => {
-          this.data = data;
-          resolve(this.data);
-        })
-    })
-*/
+    }, (err) => {
+      console.log(err);
+
+    });
+
+    this.backgroundGeolocation.start();
+
+    let options = {
+      frequency: 1000,
+      enableHighAccuracy: true
+    };
+
+    this.watch = this.geolocation.watchPosition(options).filter((p) => p.coords !== undefined)
+      .subscribe((position: Geoposition) => {
+
+        //console.log(position);
+
+        this.zone.run(() => {
+          this.latitud = position.coords.latitude;
+          this.longitud = position.coords.longitude;
+          //this.presentToast(this.latitud);
+          //iniciamos el clima cada 10 segundos
+          this.iniciarCargaClimaNuevo();
+        });
+
+      });
+
+  }
+  stopTracking() {
+    console.log('stopTracking');
+    this.backgroundGeolocation.finish();
+    this.watch.unsubscribe();
+
+  }
+  cargarClima(loading){
+
+    this.clima.getCurrentForecast(this.latitud, this.longitud).subscribe(
+      data => {
+        this.current = data;
+        this.dailySummary = this.current.daily.summary;
+        this.icon = data.icon;
+        switch (this.icon) {
+          case "partly-cloudy-day":
+            return this.icon = "wi wi-day-cloudy"
+          case 'clear-day':
+            return this.icon = 'wi wi-day-sunny'
+          case 'partly-cloudy-night':
+            return this.icon = 'wi wi-night-partly-cloudy'
+          case 'clear-night':
+            return this.icon = 'wi-night-clear'
+          case 'rain':
+            return this.icon = 'wi wi-rain'
+          case 'snow':
+            return this.icon = 'wi wi-snow'
+          case 'sleet':
+            return this.icon = 'wi wi-sleet'
+          case 'wind':
+            return this.icon = 'wi wi-windy'
+          case 'fog':
+            return this.icon = 'wi wi-fog'
+          case 'cloudy':
+            return this.icon = 'wi wi-cloudy'
+          default:
+            this.icon;
+            break;
+        }
+        loading.dismiss();
+      },
+      err => {
+        loading.dismiss();
+        console.error(err)
+      },
+      () => {
+        loading.dismiss();
+        console.log('get clima completed')
+      }
+    );
+  }
+  iniciarCargaClimaNuevo() {
+    this.interval = setInterval(() => {
+      //iniciar loading
+      let loading = this.loadingCtrl.create({
+        content: 'Espere mientras se carga info del clima'
+      });
+
+      loading.present();
+      //iniciar geolocation
+      this.cargarClima(loading);
+
+    }, environment.TIEMPO_CARGA_CLIMA);
+  }
+
+//fin nuevo codigo
+
+
+
+
+  iniciarTrackSpeed(){
+    let config = {
+      desiredAccuracy: 0,
+      stationaryRadius: 5,
+      distanceFilter: 1,
+      debug: true,
+      interval: 1000
+    };
+
+    this.backgroundGeolocation.configure(config).subscribe((location) => {
+        this.presentToast(location.speed.toString() + location);
+        this.velocidadActual = (location.speed * 3600)/1000 ; // can be speed * 3.6 and should be round for 2 decimal
+    }, (err) => {
+      console.log(err);
+      this.presentToast(err);
+    });
+
+  }
+  iniciarCargaClima() {
+    //iniciar loading
+    let loading = this.loadingCtrl.create({
+      content: 'Espere mientras se carga info del clima'
+    });
+
+    loading.present();
+
+    //iniciar geolocation
+    this.geolocation.getCurrentPosition().then((resp) => {
+      this.latitud = resp.coords.latitude;
+      this.longitud = resp.coords.longitude;
+      this.clima.getCurrentForecast(this.latitud, this.longitud).subscribe(
+        data => {
+          this.current = data;
+          this.dailySummary = this.current.daily.summary;
+          this.icon = data.icon;
+          switch (this.icon) {
+            case "partly-cloudy-day":
+              return this.icon = "wi wi-day-cloudy"
+            case 'clear-day':
+              return this.icon = 'wi wi-day-sunny'
+            case 'partly-cloudy-night':
+              return this.icon = 'wi wi-night-partly-cloudy'
+            case 'clear-night':
+              return this.icon = 'wi-night-clear'
+            case 'rain':
+              return this.icon = 'wi wi-rain'
+            case 'snow':
+              return this.icon = 'wi wi-snow'
+            case 'sleet':
+              return this.icon = 'wi wi-sleet'
+            case 'wind':
+              return this.icon = 'wi wi-windy'
+            case 'fog':
+              return this.icon = 'wi wi-fog'
+            case 'cloudy':
+              return this.icon = 'wi wi-cloudy'
+            default:
+              this.icon;
+              break;
+          }
+          loading.dismiss();
+        },
+        err => {
+          loading.dismiss();
+          console.error(err)
+        },
+        () => {
+          loading.dismiss();
+          console.log('get clima completed')
+        }
+      );
+    }).catch((error) => {
+      console.log('Error getting location', error);
+      this.presentToast(error);
+      loading.dismiss();
+    });
+
   }
   ngOnDestroy() {
     if (this.interval) {
@@ -337,6 +497,22 @@ export class SkinDigitalDosPage {
       clearInterval(this.intervalThrottlepos);
     }
   }
+
+  iniciarIntervaloGPS(){
+    this.interval = setInterval(() => {
+      this.deviceMotion.getCurrentAcceleration().then(
+        (acceleration: DeviceMotionAccelerationData) => {
+          console.log(acceleration);
+          this.velocidadActual = parseInt(acceleration.toString());
+        },
+        (error: any) => {
+          console.log(error);
+          this.presentToast(error);
+        }
+      );
+    }, 500);
+  }
+
   iniciarIntervaloDos() {
     var smsVel = "010D\r";
     var smsTemp = "0105\r";
@@ -454,6 +630,7 @@ export class SkinDigitalDosPage {
   }
 
   goBack() {
+    //this.backgroundGeolocation.finish();
     this.navCtrl.pop();
     //console.log('Click on button Test Console Log');
  }

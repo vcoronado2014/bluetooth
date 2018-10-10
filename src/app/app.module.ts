@@ -4,6 +4,8 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { Geolocation } from '@ionic-native/geolocation';
+import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion';
+import { BackgroundGeolocation} from '@ionic-native/background-geolocation';
 
 import { HttpModule } from '@angular/http';
 
@@ -13,10 +15,12 @@ import { GaugesModule } from 'ng-canvas-gauges/lib';
 
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { BluetoothPage } from './../pages/bluetooth/bluetooth';
+
 //nuevas paginas
 import { SeleccionSkinPage } from './../pages/seleccion-skin/seleccion-skin';
 import { SkinDigitalUnoPage } from './../pages/skin-digital-uno/skin-digital-uno';
 import { SkinDigitalDosPage } from './../pages/skin-digital-dos/skin-digital-dos';
+import { SeleccionPage } from './../pages/seleccion/seleccion';
 //nuevo servicio
 import { ComunicacionService } from '../app/Servicios/ComunicacionService';
 import { ServicioClima } from '../app/Servicios/ServicioClima';
@@ -30,7 +34,8 @@ import { ServicioClima } from '../app/Servicios/ServicioClima';
     SeleccionSkinPage,
     BluetoothPage,
     SkinDigitalUnoPage,
-    SkinDigitalDosPage
+    SkinDigitalDosPage,
+    SeleccionPage
   ],
   imports: [
     BrowserModule,
@@ -47,7 +52,8 @@ import { ServicioClima } from '../app/Servicios/ServicioClima';
     SeleccionSkinPage,
     BluetoothPage,
     SkinDigitalUnoPage,
-    SkinDigitalDosPage
+    SkinDigitalDosPage,
+    SeleccionPage
   ],
   providers: [
     BluetoothSerial,
@@ -57,6 +63,8 @@ import { ServicioClima } from '../app/Servicios/ServicioClima';
     ComunicacionService,
     Geolocation,
     ServicioClima,
+    DeviceMotion,
+    BackgroundGeolocation,
     //OpenWeatherMapProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]

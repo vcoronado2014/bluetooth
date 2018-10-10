@@ -60,12 +60,23 @@ page-skin-digital-dos {
         color: #94FE90;
 
     }
+    .cuadro-info{
+        padding: 0;
+        margin: 0;
+        font-size: 0.8rem;
+        color: #94FE90;
+        font-style: italic;
+        font-weight: 400;
+    }
     .iconClima{
-        bottom: 19px;
-        margin-left: 5px;
+        /*bottom: 19px;
+        margin-left: 5px;*/
         font-size: 45px;
         position: relative;
-        color:#fff;
+        margin-left: 20%;
+        padding-top: 8%;
+
+        /*color:#fff;*/
       }
       .climaActual{
         margin-top: 0;
@@ -79,8 +90,9 @@ page-skin-digital-dos {
       .powered{
         font-size: 72%;
         position: relative;
-        top: 14px;
-        right: 0px;
+        /*top: 14px;*/
+        /*right: 0px;*/
+        margin-left: 20%;
         color: #757575;
       } 
 }

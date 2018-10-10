@@ -17,9 +17,11 @@ import { SkinDigitalDosPage } from '../../pages/skin-digital-dos/skin-digital-do
 })
 export class SeleccionSkinPage {
   estaConectado = false;
+  operacion = 'OBD';
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {
     this.estaConectado = navParams.get('estaConectado');
+    this.operacion = navParams.get('operacion');
   }
   AbrirSkinDigitalUno(){
     //abrir la pagina siguiente a la conexión, cambiar esto despues
@@ -43,7 +45,7 @@ export class SeleccionSkinPage {
       this.presentToast('No puede seguir, debe conectarse a un dispositivo bluetooth.');
     }
     */
-   this.navCtrl.push(SkinDigitalDosPage, { estaConectado: this.estaConectado });
+   this.navCtrl.push(SkinDigitalDosPage, { estaConectado: this.estaConectado, operacion: this.operacion });
   }
   ionViewDidLoad() {
     console.log('ionViewDidLoad SeleccionSkinPage');

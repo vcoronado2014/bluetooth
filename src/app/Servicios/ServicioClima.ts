@@ -7,17 +7,17 @@ import { NavParams, Platform } from 'ionic-angular';
 //import { NativeGeocoder } from '@ionic-native/native-geocoder';
 
 import 'rxjs/add/operator/map';
+import { environment } from '../../environments/environments'
 
 @Injectable()
 export class ServicioClima {
-    proxy: 'https://cors-anywhere.herokuapp.com/';
-    climaUrl: string = 'https://api.darksky.net/forecast/df4a8842bbc6b36a1f5245683a954606/';
     current;
     icon;
     climaActual;
     location;
     lat;
     long;
+    daily;
 
     constructor(private http: Http,
         private platform: Platform,
@@ -28,7 +28,7 @@ export class ServicioClima {
     getCurrentForecast(lat, lon) {
 
         let location = lat + "," + lon;
-        let urlClima = 'https://cors-anywhere.herokuapp.com/' + this.climaUrl + location + '?lang=es&units=ca';
+        let urlClima = environment.PROXY_CLIMA_URL + environment.CLIMA_URL + location + '?lang=es&units=ca';
 
 
         return this.http.get(urlClima, {
@@ -36,40 +36,16 @@ export class ServicioClima {
         })
             .map(res => {
                 this.current = res.json().currently;
-                //respuesta
-                /*
-                https://darksky.net/dev/docs
-
-                */
-
+                this.current.temperature = parseInt(this.current.temperature);
+                var humedad = this.current.humidity * 100; 
+                this.current.humidity = parseInt(humedad.toString());
+                this.current.visibility = parseInt(this.current.visibility);
+                var prec = this.current.precipProbability * 100;
+                this.current.precipProbability = parseInt(prec.toString());
+                this.current.daily = res.json().daily;
                 return this.current;
 
             });
 
     }
-
-    getForecastIcon() {
-
-        this.lat = localStorage.getItem("lat");
-        this.long = localStorage.getItem("lng");
-
-        let location = this.lat + "," + this.long;
-        let urlClima = this.climaUrl + location;
-
-        return this.http.get(urlClima, {
-            headers: new Headers({ 'Content-Type': 'application/json' })
-        })
-            .map(res => {
-
-                //<i class="{{ icon }} iconClima"></i>
-                this.icon = res.json().currently.icon;
-                return this.icon;
-
-            });
-
-    }
-
-
-
-
 }

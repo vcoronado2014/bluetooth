@@ -55,7 +55,7 @@ export class BluetoothPage {
       this.presentToast('No puede seguir, debe conectarse a un dispositivo bluetooth.');
     }
     */
-   this.navCtrl.push(SeleccionSkinPage, { estaConectado: this.estaConectado });
+   this.navCtrl.push(SeleccionSkinPage, { estaConectado: this.estaConectado, operacion: 'OBD' });
   }
   iniciarIntervalo() {
     var sms = "010D";

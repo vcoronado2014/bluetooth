@@ -3,6 +3,7 @@ import { Platform, Nav } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { BluetoothPage } from '../pages/bluetooth/bluetooth';
+import { SeleccionPage } from '../pages/seleccion/seleccion';
 //import { Http } from '@angular/http';
 
 
@@ -11,7 +12,7 @@ import { BluetoothPage } from '../pages/bluetooth/bluetooth';
 })
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
-  rootPage:any = BluetoothPage;
+  rootPage:any = SeleccionPage;
 
   constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen) {
     platform.ready().then(() => {
