@@ -5,7 +5,7 @@
   Ionic pages and navigation.
 -->
 <ion-content class="hidden calendario-horizontal dark">
-  <ion-grid style="padding-top: 4%;">
+  <ion-grid style="padding-top: 3%;">
     <ion-row>
       <!-- columna de la izquierda-->
       <ion-col>
@@ -61,6 +61,9 @@
             </ion-card>
           </ion-col>
         </ion-row>
+        <ion-row text-center style="padding-top:5px; font-size: 0.8rem;">
+            speed: {{speed}}
+        </ion-row>
       </ion-col>
       <!-- columna central -->
       <ion-col col-6 style="text-align: center;">
@@ -76,26 +79,18 @@
         </ion-row>
         <!-- fila 2 de la columna central-->
         <ion-row style="padding-top: 3%;">
-          <ion-col no-padding col-3>
-              <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
-                  <ion-card-header text-center>
-                    Izquierda
-                  </ion-card-header>
-                  <ion-card-content style="font-size: 3rem;" text-center>
-                      <ion-icon name="arrow-dropleft-circle"></ion-icon>
-                  </ion-card-content>
-                </ion-card>
+          <ion-col no-padding col-6>
+              <ion-item style="    color: #94FE90;
+              font-size: 1rem;
+              border: none;
+              background: transparent;
+              padding: 0;
+              margin: 0;">
+                  <ion-label>Usa Clima</ion-label>
+                  <ion-toggle [(ngModel)]="usaClima"></ion-toggle>
+                </ion-item>
           </ion-col>
-          <ion-col no-padding col-3>
-              <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
-                  <ion-card-header text-center>
-                    Derecha
-                  </ion-card-header>
-                  <ion-card-content style="font-size: 3rem;" text-center>
-                      <ion-icon name="arrow-dropright-circle"></ion-icon>
-                  </ion-card-content>
-                </ion-card>
-          </ion-col>
+
           <ion-col no-padding col-3>
               <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
                   <ion-card-header text-center>
@@ -173,14 +168,14 @@
           </p>
         </ion-row>
         <ion-row text-center style="font-family: 'Digital7';color: #94FE90; padding-top: 5px;">
-          <button ion-button full outline icon-end  (click)="cargarClima(loading2)" style="border-width: 1px;
+          <button ion-button full outline icon-end  (click)="cargarClimaSinLoading()" style="border-width: 1px;
           border-style: none;
           border-color: #94FE90;
           color: #94FE90;
           background-color: transparent;
           -webkit-box-shadow: none;
           box-shadow: none;">
-            12-02-1988
+            <span style="font-size: 0.7rem;">{{fechaActualizacion}}</span>
             <ion-icon name="refresh"></ion-icon>
           </button> 
           

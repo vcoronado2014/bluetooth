@@ -6,6 +6,7 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { Geolocation } from '@ionic-native/geolocation';
 import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion';
 import { BackgroundGeolocation} from '@ionic-native/background-geolocation';
+import { Store, StateObservable, StoreModule } from '@ngrx/store';
 
 import { HttpModule } from '@angular/http';
 
@@ -24,6 +25,8 @@ import { SeleccionPage } from './../pages/seleccion/seleccion';
 //nuevo servicio
 import { ComunicacionService } from '../app/Servicios/ComunicacionService';
 import { ServicioClima } from '../app/Servicios/ServicioClima';
+import { LocationTrackerService } from '../app/Servicios/location-tracker';
+//import { ITrackerState } from '../app/Servicios/trackerReducer';
 //weather
 //import { OpenWeatherMapModule, OpenWeatherMap } from 'ionic-openweathermap';
 //import { OpenWeatherMapProvider } from 'ionic-openweathermap/dist/src/providers/openweathermap-provider';
@@ -42,6 +45,7 @@ import { ServicioClima } from '../app/Servicios/ServicioClima';
     GaugesModule,
     //OpenWeatherMapModule,
     HttpModule,
+    StoreModule.forRoot({}),
     IonicModule.forRoot(MyApp, {
       preloadModules: true
     })
@@ -65,6 +69,8 @@ import { ServicioClima } from '../app/Servicios/ServicioClima';
     ServicioClima,
     DeviceMotion,
     BackgroundGeolocation,
+    LocationTrackerService,
+    Store,
     //OpenWeatherMapProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
