@@ -75,7 +75,7 @@
 
         </ion-row>
         <!-- fila 2 de la columna central-->
-        <ion-row>
+        <ion-row style="padding-top: 3%;">
           <ion-col no-padding col-3>
               <ion-card class="card-indicadores" style="margin-top: 0;border: none;box-shadow: none;">
                   <ion-card-header text-center>
@@ -167,13 +167,23 @@
             </span>
           </ion-col>
         </ion-row>
-        <ion-row text-center>
+        <ion-row text-center style="padding-top:5px;">
           <p text-wrap text-justify class="cuadro-info">
             {{dailySummary}}
           </p>
         </ion-row>
-        <ion-row no-padding text-center>
-          12-02-1978 <ion-icon name="refresh" (click)="cargarClima(loading2)"></ion-icon>
+        <ion-row text-center style="font-family: 'Digital7';color: #94FE90; padding-top: 5px;">
+          <button ion-button full outline icon-end  (click)="cargarClima(loading2)" style="border-width: 1px;
+          border-style: none;
+          border-color: #94FE90;
+          color: #94FE90;
+          background-color: transparent;
+          -webkit-box-shadow: none;
+          box-shadow: none;">
+            12-02-1988
+            <ion-icon name="refresh"></ion-icon>
+          </button> 
+          
         </ion-row>
         <ion-row text-center>
           <a class="powered" href="https://darksky.net/poweredby/">Powered by Dark Sky</a>

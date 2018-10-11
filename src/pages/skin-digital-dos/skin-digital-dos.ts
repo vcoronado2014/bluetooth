@@ -266,24 +266,18 @@ export class SkinDigitalDosPage {
         //this.iniciarIntervaloGPS();
         //this.iniciarTrackSpeed();
         this.startTracking();
+        
       }
       
-      //lo comentamos por mientras
-      //this.iniciarCargaClima();
+      //iniciamos el clima cada 10 segundos
+      this.iniciarCargaClimaNuevo();
+      //this.cargarClimaSinLoading();
     });
   }
 
 //nuevo codigo
   startTracking() {
-    /*this.deviceMotion.getCurrentAcceleration().then(
-      (acceleration: DeviceMotionAccelerationData) => //console.log(acceleration)
-      this.x=0,
-      (error: any) => console.log(error)
-    );
-    var subscription = this.deviceMotion.watchAcceleration().subscribe((acceleration: DeviceMotionAccelerationData) => {
-      //console.log(acceleration);
-    });
-  */
+
     let config = {
       desiredAccuracy: 0,
       stationaryRadius: 5,
@@ -301,7 +295,10 @@ export class SkinDigitalDosPage {
         this.latitud = location.latitude;
         this.longitud = location.longitude;
         this.speed = (location.speed * 3600) / 1000; // can be speed * 3.6 and should be round for 2 decimal
+        //Math.round( number * 10 ) / 10;
         this.velocidadActual = this.speed;
+        this.velocidadActual = Math.round( this.velocidadActual * 10 ) / 10;
+        
 
       });
 
@@ -326,8 +323,50 @@ export class SkinDigitalDosPage {
           this.latitud = position.coords.latitude;
           this.longitud = position.coords.longitude;
           //this.presentToast(this.latitud);
-          //iniciamos el clima cada 10 segundos
-          this.iniciarCargaClimaNuevo();
+          this.clima.getCurrentForecast(this.latitud, this.longitud).subscribe(
+            data => {
+              this.current = data;
+              this.dailySummary = this.current.daily.summary;
+              this.icon = data.icon;
+              switch (this.icon) {
+                case "partly-cloudy-day":
+                  return this.icon = "wi wi-day-cloudy"
+                case 'clear-day':
+                  return this.icon = 'wi wi-day-sunny'
+                case 'partly-cloudy-night':
+                  return this.icon = 'wi wi-night-partly-cloudy'
+                case 'clear-night':
+                  return this.icon = 'wi-night-clear'
+                case 'rain':
+                  return this.icon = 'wi wi-rain'
+                case 'snow':
+                  return this.icon = 'wi wi-snow'
+                case 'sleet':
+                  return this.icon = 'wi wi-sleet'
+                case 'wind':
+                  return this.icon = 'wi wi-windy'
+                case 'fog':
+                  return this.icon = 'wi wi-fog'
+                case 'cloudy':
+                  return this.icon = 'wi wi-cloudy'
+                default:
+                  this.icon;
+                  break;
+              }
+              this.presentToast("Clima cargado");
+              
+            },
+            err => {
+              
+              console.error(err);
+              this.presentToast(err);
+            },
+            () => {
+              
+              console.log('get clima completed')
+            }
+          );
+
         });
 
       });
@@ -339,8 +378,54 @@ export class SkinDigitalDosPage {
     this.watch.unsubscribe();
 
   }
-  cargarClima(loading){
+  cargarClimaSinLoading(){
 
+    this.clima.getCurrentForecast(this.latitud, this.longitud).subscribe(
+      data => {
+        this.current = data;
+        this.dailySummary = this.current.daily.summary;
+        this.icon = data.icon;
+        switch (this.icon) {
+          case "partly-cloudy-day":
+            return this.icon = "wi wi-day-cloudy"
+          case 'clear-day':
+            return this.icon = 'wi wi-day-sunny'
+          case 'partly-cloudy-night':
+            return this.icon = 'wi wi-night-partly-cloudy'
+          case 'clear-night':
+            return this.icon = 'wi-night-clear'
+          case 'rain':
+            return this.icon = 'wi wi-rain'
+          case 'snow':
+            return this.icon = 'wi wi-snow'
+          case 'sleet':
+            return this.icon = 'wi wi-sleet'
+          case 'wind':
+            return this.icon = 'wi wi-windy'
+          case 'fog':
+            return this.icon = 'wi wi-fog'
+          case 'cloudy':
+            return this.icon = 'wi wi-cloudy'
+          default:
+            this.icon;
+            break;
+        }
+        this.presentToast("Clima cargado");
+        
+      },
+      err => {
+        
+        console.error(err);
+        this.presentToast(err);
+      },
+      () => {
+        
+        console.log('get clima completed')
+      }
+    );
+  }
+  cargarClima(loading){
+    loading.present();
     this.clima.getCurrentForecast(this.latitud, this.longitud).subscribe(
       data => {
         this.current = data;
